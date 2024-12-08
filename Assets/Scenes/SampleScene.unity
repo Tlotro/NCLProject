@@ -485,7 +485,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 480659338}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -502,7 +502,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!64 &480659345
 MeshCollider:
@@ -540,15 +540,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 480659343}
   bouyancyDepth: 0
-  bouyancyForce: 1.2
-  waterDrag: 0.25
+  bouyancyForce: 200
+  waterDrag: 0.1
+  RandomWaves: 1
+  WaveDirection: {x: 0, y: 0}
+  WaveStrength: 100
   boundingrect:
     serializedVersion: 2
     x: -20
     y: 0
-    width: 20
+    width: 40
     height: 0
-  shiftForce: 1
 --- !u!1 &559889029
 GameObject:
   m_ObjectHideFlags: 0
@@ -563,6 +565,7 @@ GameObject:
   - component: {fileID: 559889030}
   - component: {fileID: 559889034}
   - component: {fileID: 559889035}
+  - component: {fileID: 559889036}
   m_Layer: 0
   m_Name: Crane
   m_TagString: Untagged
@@ -678,10 +681,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 116
   m_CollisionDetection: 0
 --- !u!145 &559889035
 SpringJoint:
@@ -692,11 +695,11 @@ SpringJoint:
   m_GameObject: {fileID: 559889029}
   m_ConnectedBody: {fileID: 1655984484}
   m_ConnectedArticulationBody: {fileID: 0}
-  m_Anchor: {x: 0, y: 0.5, z: 0}
+  m_Anchor: {x: 0, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 0
   m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   serializedVersion: 2
-  m_Spring: 10
+  m_Spring: 3.4028233e+38
   m_Damper: 0.2
   m_MinDistance: 0
   m_MaxDistance: 10
@@ -707,6 +710,26 @@ SpringJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &559889036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559889029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85dac5ccc2c3e7545986ec1d1554c499, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ContainerRb: {fileID: 1655984484}
+  rope: {fileID: 559889035}
+  RandomWind: 1
+  WindDirection: {x: 0, y: 0}
+  WindStrength: 1
+  CraneRb: {fileID: 0}
+  DescentSpeed: 1
+  platformSpeed: {x: 0, y: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,7 +792,6 @@ GameObject:
   - component: {fileID: 1655984481}
   - component: {fileID: 1655984480}
   - component: {fileID: 1655984484}
-  - component: {fileID: 1655984485}
   m_Layer: 0
   m_Name: Block
   m_TagString: Untagged
@@ -872,7 +894,7 @@ Rigidbody:
   m_GameObject: {fileID: 1655984479}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 0.1
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -888,22 +910,8 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &1655984485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1655984479}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c1941de8f478a04ea22c8944144bd4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rb: {fileID: 1655984484}
-  WindStrength: 10
 --- !u!1 &1806996013
 GameObject:
   m_ObjectHideFlags: 0
