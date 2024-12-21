@@ -1,19 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Crane : MonoBehaviour
 {
+    public bool EnableExpertSystem;
+
+    public Ship ship;
+    public GameObject ContainerPrefab;
     public Rigidbody ContainerRb;
     public SpringJoint rope;
+    public Rigidbody CraneRb;
 
-    public bool RandomWind;
+    public InfluenceMode WindModeDirectionX;
+    public float WindPeriodX;
+    public InfluenceMode WindModeDirectionY;
+    public float WindPeriodY;
+    public InfluenceMode WindModeStrength;
+    public float WindPeriodStrength;
     public Vector2 WindDirection;
+    public Vector2 WindStrengthClamp;
     public float WindStrength;
 
-    public Rigidbody CraneRb;
     public float DescentSpeed;
-    public Vector2 platformSpeed;
+    public Vector2 PlatformSpeed;
+
+    private float WindTimerX;
+    private float WindTimerY;
+    private float WindTimerStrength;
+
+    public Vector3Int ContainerGoal;
+    public float LandingPrecision;
+    public int[,] towers = new int[50,20];
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,12 +48,101 @@ public class Crane : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (RandomWind)
-            WindDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-        ContainerRb.AddForce(WindDirection.AsXZ() * WindStrength,ForceMode.Acceleration);
+        if (rope.connectedBody != null)
+        {
+            WindTimerX += (Time.fixedDeltaTime / WindPeriodX) % (Mathf.PI * 2);
+            WindTimerY += (Time.fixedDeltaTime / WindPeriodY) % (Mathf.PI * 2);
+            WindTimerStrength += (Time.fixedDeltaTime / WindPeriodStrength) % (Mathf.PI * 2);
+            switch (WindModeDirectionX)
+            {
+                case InfluenceMode.random:
+                    WindDirection.x = Random.Range(-1f, 1f);
+                    break;
+                case InfluenceMode.sine:
+                    WindDirection.x = Mathf.Sin(WindTimerX);
+                    break;
+            }
+            switch (WindModeDirectionY)
+            {
+                case InfluenceMode.random:
+                    WindDirection.y = Random.Range(-1f, 1f);
+                    break;
+                case InfluenceMode.sine:
+                    WindDirection.y = Mathf.Sin(WindTimerY);
+                    break;
+            }
+            switch (WindModeStrength)
+            {
+                case InfluenceMode.random:
+                    WindStrength = Random.Range(WindStrengthClamp.x, WindStrengthClamp.y);
+                    break;
+                case InfluenceMode.sine:
+                    WindStrength = (Mathf.Sin(WindTimerStrength) + 1) / 2 * (WindStrengthClamp.y - WindStrengthClamp.x) + WindStrengthClamp.x;
+                    break;
+            }
 
-        rope.maxDistance += DescentSpeed*Time.fixedDeltaTime;
-        CraneRb.velocity = platformSpeed.AsXZ();
+            ContainerRb.AddForce(WindDirection.normalized.AsXZ() * WindStrength, ForceMode.Acceleration);
+            Debug.Log((ContainerRb.position.x - ship.transform.position.x) + 49f - ContainerGoal.x * 2 + " " + (ContainerRb.position.y - ship.transform.position.y - 5.5f - ContainerGoal.y) + " " + (ContainerRb.position.z - ship.transform.position.z + 9.5f - ContainerGoal.z));
+            if (EnableExpertSystem) {
+            Dictionary<string, float> parameters = new Dictionary<string, float>
+            {
+                { "CargoDistanceX", (ContainerRb.position.x-ship.transform.position.x)+49f-ContainerGoal.x*2 },
+                { "CargoDistanceY", ContainerRb.position.y - ship.transform.position.y-5.5f-ContainerGoal.y },
+                { "CargoDistanceZ", ContainerRb.position.z - ship.transform.position.z+9.5f-ContainerGoal.z }
+            };
+            var res = ExpertSystem.Run(parameters);
+            DescentSpeed = res["DescentSpeed"];
+            CraneRb.velocity = new Vector2(res["CraneSpeedX"], res["CraneSpeedZ"]).AsXZ();
+            }
+            rope.maxDistance += DescentSpeed * Time.fixedDeltaTime;
+        }
+        else
+        {
+            CraneRb.velocity = Vector3.ClampMagnitude(-new Vector3(transform.position.x,0,transform.position.z),5);
+            if (CraneRb.velocity.magnitude < 0.1f)
+            {
+                transform.position = new Vector3(0, 50, 0);
+                CraneRb.velocity = Vector3.zero;
+                CreateContainer();
+            }
+        }
+    }
+
+    public void CreateContainer()
+    {
+        var container = Object.Instantiate(ContainerPrefab, transform);
+        container.transform.localPosition = new Vector3(0, -5, 0);
+        ContainerRb = container.GetComponent<Rigidbody>();
+        rope.connectedBody = ContainerRb;
+        rope.maxDistance = 5;
+    }
+
+    public void DetachContainer()
+    {
+        rope.connectedBody = null;
+        rope.maxDistance = 0;
+        ContainerRb.transform.parent = ship.transform;
+        Destroy(ContainerRb);
+        ContainerRb = null;
+    }
+
+    public void Land()
+    {
+        Vector3 landPos = new Vector3((ContainerRb.position.x-ship.transform.position.x)/2+24.5f,ContainerRb.position.y - ship.transform.position.y-5.5f, ContainerRb.position.z - ship.transform.position.z+9.5f);
+        Debug.Log(landPos + " " + (landPos - ContainerGoal));
+        if ((landPos - ContainerGoal).magnitude > LandingPrecision)
+            Debug.LogWarning("Container collision or improper location!");
+        DetachContainer();
+        RerollGoal();
+        towers[Mathf.RoundToInt(landPos.x), Mathf.RoundToInt(landPos.y)]++;
+    }   
+    
+    public void RerollGoal()
+    {
+        int x = Random.Range(0, 50);
+        int z = Random.Range(0, 20);
+        Debug.Log(x + " " + z);
+        ContainerGoal = new Vector3Int(x, towers[x,z] ,z);
     }
 }
 

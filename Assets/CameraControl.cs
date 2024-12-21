@@ -14,4 +14,6 @@ public class CameraControl : MonoBehaviour
         
         transform.RotateAround(Vector3.zero,Vector3.up, -Input.GetAxisRaw("Horizontal"));
     }
+
+
 }
