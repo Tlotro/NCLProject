@@ -2,9 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Ship : MonoBehaviour
 {
+    [SerializeField] private Toggle randomWavesToggle;
+
+    [SerializeField] private Slider sliderStrength;
+
+    [SerializeField] private Slider sliderDirectionX;
+    [SerializeField] private Slider sliderDirectionY;
+
+
     public Rigidbody rb;
     public float bouyancyDepth;
     public float bouyancyForce;
@@ -14,10 +23,63 @@ public class Ship : MonoBehaviour
     public Vector2 WaveDirection;
     public float WaveStrength;
     public Rect boundingrect;
+    
     // Start is called before the first frame update
     void Start()
     {
-        
+        RandomWaves = randomWavesToggle.isOn;
+
+        WaveStrength = sliderStrength.value;
+
+        if (!RandomWaves)
+        {
+            WaveDirection.x = sliderDirectionX.value;
+            WaveDirection.y = sliderDirectionY.value;
+        }
+        else
+        {
+            sliderDirectionX.interactable = false;
+            sliderDirectionY.interactable = false;
+        }
+
+        randomWavesToggle.onValueChanged.AddListener(OnToggleValueChanged);
+
+        sliderStrength.onValueChanged.AddListener(OnSliderStrengthValueChanged);
+
+        sliderDirectionX.onValueChanged.AddListener(OnSliderDirectionXValueChanged);
+        sliderDirectionY.onValueChanged.AddListener(OnSliderDirectionYValueChanged);
+    }
+
+    private void OnToggleValueChanged(bool value)
+    {
+        RandomWaves = value;
+
+        if (!RandomWaves)
+        {
+            sliderDirectionX.interactable = true;
+            sliderDirectionY.interactable = true;
+        }
+        else
+        {
+            sliderDirectionX.interactable = false;
+            sliderDirectionY.interactable = false;
+        }
+
+    }
+
+    private void OnSliderStrengthValueChanged(float value)
+    {
+        WaveStrength = value;
+    }
+
+    private void OnSliderDirectionXValueChanged(float value)
+    {
+        WaveDirection.x = value;
+    }
+
+    private void OnSliderDirectionYValueChanged(float value)
+    {
+        WaveDirection.y = value;
     }
 
     // Update is called once per frame

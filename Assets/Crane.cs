@@ -1,9 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Crane : MonoBehaviour
 {
+    [SerializeField] private Toggle randomWindToggle;
+
+    [SerializeField] private Slider sliderStrength;
+
+    [SerializeField] private Slider sliderDirectionX;
+    [SerializeField] private Slider sliderDirectionY;
+
     public Rigidbody ContainerRb;
     public SpringJoint rope;
 
@@ -14,10 +20,62 @@ public class Crane : MonoBehaviour
     public Rigidbody CraneRb;
     public float DescentSpeed;
     public Vector2 platformSpeed;
+    
     // Start is called before the first frame update
     void Start()
     {
-        
+        RandomWind = randomWindToggle.isOn;
+        WindStrength = sliderStrength.value;
+
+        if (!RandomWind)
+        {
+            WindDirection.x = sliderDirectionX.value;
+            WindDirection.y = sliderDirectionY.value;
+        }
+        else
+        {
+            sliderDirectionX.interactable = false;
+            sliderDirectionY.interactable = false;
+        }
+
+        randomWindToggle.onValueChanged.AddListener(OnToggleValueChanged);
+
+        sliderStrength.onValueChanged.AddListener(OnSliderStrengthValueChanged);
+
+        sliderDirectionX.onValueChanged.AddListener(OnSliderDirectionXValueChanged);
+        sliderDirectionY.onValueChanged.AddListener(OnSliderDirectionYValueChanged);
+    }
+
+    private void OnToggleValueChanged(bool value)
+    {
+        RandomWind = value;
+
+        if (!RandomWind)
+        {
+            sliderDirectionX.interactable = true;
+            sliderDirectionY.interactable = true;
+        }
+        else
+        {
+            sliderDirectionX.interactable = false;
+            sliderDirectionY.interactable = false;
+        }
+
+    }
+
+    private void OnSliderStrengthValueChanged(float value)
+    {
+        WindStrength = value;
+    }
+
+    private void OnSliderDirectionXValueChanged(float value)
+    {
+        WindDirection.x = value;
+    }
+
+    private void OnSliderDirectionYValueChanged(float value)
+    {
+        WindDirection.y = value;
     }
 
     private void Awake()
