@@ -82,7 +82,7 @@ public class Crane : MonoBehaviour
             }
 
             ContainerRb.AddForce(WindDirection.normalized.AsXZ() * WindStrength, ForceMode.Acceleration);
-            Debug.Log((ContainerRb.position.x - ship.transform.position.x) + 49f - ContainerGoal.x * 2 + " " + (ContainerRb.position.y - ship.transform.position.y - 5.5f - ContainerGoal.y) + " " + (ContainerRb.position.z - ship.transform.position.z + 9.5f - ContainerGoal.z));
+            Debug.Log((ContainerRb.position.x - ship.transform.position.x) + 49f - ContainerGoal.x * 2 + " " + (ContainerRb.position.z - ship.transform.position.z + 9.5f - ContainerGoal.z));
             if (EnableExpertSystem) {
             Dictionary<string, float> parameters = new Dictionary<string, float>
             {

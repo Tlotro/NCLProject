@@ -10,9 +10,14 @@ using UnityEngine;
 public enum InfluenceMode { manual, random, sine };
 public static class ExpertSystem
 {
-    public static Dictionary<string,ParameterRange> ParamRanges = new Dictionary<string, ParameterRange> 
-    { 
-        
+    public static Dictionary<string,ParameterRange> ParamRanges = new Dictionary<string, ParameterRange>
+    {
+        //{ "CargoDistanceX", new ParameterRange(new Subset("Lneg",(-15,1))},
+        //{ "CargoDistanceY", new ParameterRange()},
+        //{ "CargoDistanceZ", new ParameterRange()},
+        //{ "DescentSpeed", new ParameterRange()},
+        //{ "CraneSpeedX", new ParameterRange()},
+        //{ "CraneSpeedZ", new ParameterRange()}
     };
     public static Production[] productions = new Production[] 
     { 

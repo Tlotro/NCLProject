@@ -546,8 +546,8 @@ MonoBehaviour:
   WaveModeStrength: 0
   WavePeriod: 1
   WaveStrengthClamp: {x: 0, y: 0}
-  WaveStrength: 10
-  CurrentModeDirectionX: 2
+  WaveStrength: 1
+  CurrentModeDirectionX: 0
   CurrentPeriodX: 1
   CurrentModeDirectionY: 0
   CurrentPeriodY: 1
@@ -679,7 +679,7 @@ Rigidbody:
   m_GameObject: {fileID: 559889029}
   serializedVersion: 4
   m_Mass: 100
-  m_Drag: 0
+  m_Drag: 0.5
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -740,16 +740,16 @@ MonoBehaviour:
   ContainerRb: {fileID: 0}
   rope: {fileID: 559889035}
   CraneRb: {fileID: 559889034}
-  WindModeDirectionX: 2
-  WindPeriodX: 2
-  WindModeDirectionY: 2
+  WindModeDirectionX: 0
+  WindPeriodX: 1
+  WindModeDirectionY: 0
   WindPeriodY: 1
   WindModeStrength: 0
   WindPeriodStrength: 1
   WindDirection: {x: 0, y: 0}
   WindStrengthClamp: {x: -10, y: 10}
   WindStrength: 0
-  DescentSpeed: 5
+  DescentSpeed: 1
   PlatformSpeed: {x: 0, y: 0}
   ContainerGoal: {x: 0, y: 0, z: 0}
   LandingPrecision: 0.1
