@@ -35,6 +35,13 @@ public class Crane : MonoBehaviour
     public float LandingPrecision;
     public int[,] towers = new int[7,8];
 
+    public void SetCurrentMode(int mode) { WindModeStrength = (InfluenceMode)mode; }
+    public void SetCurrentStrength(float mode) { if (WindModeStrength == InfluenceMode.manual) WindStrength = mode; }
+    public void SetCurrentModeX(int mode) { WindModeDirectionX = (InfluenceMode)mode; }
+    public void SetCurrentX(float mode) { if (WindModeDirectionX == InfluenceMode.manual) WindDirection.x = mode; }
+    public void SetCurrentModeY(int mode) { WindModeDirectionY = (InfluenceMode)mode; }
+    public void SetCurrentY(float mode) { if (WindModeDirectionY == InfluenceMode.manual) WindDirection.y = mode; }
+
     // Start is called before the first frame update
     void Start()
     {

@@ -33,6 +33,15 @@ public class Ship : MonoBehaviour
     private float CurrentTimerY;
     private float CurrentTimerStrength;
 
+    public void SetWaveMode(int mode) { WaveModeStrength = (InfluenceMode)mode; }
+    public void SetWaveStrength(float mode) { if (WaveModeStrength == InfluenceMode.manual) WaveStrength = mode; }
+    public void SetCurrentMode(int mode) { CurrentModeStrength = (InfluenceMode)mode; }
+    public void SetCurrentStrength(float mode) { if (CurrentModeStrength == InfluenceMode.manual) CurrentStrength = mode; }
+    public void SetCurrentModeX(int mode) { CurrentModeDirectionX = (InfluenceMode)mode; }
+    public void SetCurrentX(float mode) { if (CurrentModeDirectionX == InfluenceMode.manual) CurrentDirection.x = mode; }
+    public void SetCurrentModeY(int mode) { CurrentModeDirectionY = (InfluenceMode)mode; }
+    public void SetCurrentY(float mode) { if (CurrentModeDirectionY == InfluenceMode.manual) CurrentDirection.y = mode; }
+
     // Start is called before the first frame update
     void Start()
     {
