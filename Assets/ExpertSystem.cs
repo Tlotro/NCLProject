@@ -12,20 +12,46 @@ public static class ExpertSystem
 {
     public static Dictionary<string,ParameterRange> ParamRanges = new Dictionary<string, ParameterRange>
     {
-        //{ "CargoDistanceX", new ParameterRange(new Subset("Lneg",(-15,1))},
-        //{ "CargoDistanceY", new ParameterRange()},
-        //{ "CargoDistanceZ", new ParameterRange()},
-        //{ "DescentSpeed", new ParameterRange()},
-        //{ "CraneSpeedX", new ParameterRange()},
-        //{ "CraneSpeedZ", new ParameterRange()}
+        { "CargoDistanceX", new ParameterRange(new Subset("Lneg",(-2,1),(-0.5f,0)), new Subset("Sneg",(-1,0),(-0.5f,1),(0,1),(1,0)),new Subset("Spos",(-1,0),(0,1),(0.5f,1),(1,0)),new Subset("Lpos",(0.5f,0),(2,1)) )},
+        { "CargoDistanceY", new ParameterRange(new Subset("S",(-1,0),(1,1),(3,1),(5,0)), new Subset("M",(3,0),(5,1),(10,1),(12,0)),new Subset("L",(10,0),(12,1)))},
+        { "CargoDistanceZ", new ParameterRange(new Subset("Lneg",(-2,1),(-0.5f,0)), new Subset("Sneg",(-1,0),(-0.5f,1),(0,1),(1,0)),new Subset("Spos",(-1,0),(0,1),(0.5f,1),(1,0)),new Subset("Lpos",(0.5f,0),(2,1)) )},
+        { "DescentSpeed", new ParameterRange(new Subset("Z",(0,1)),new Subset("Low",(0,1),(1,1),(2,0)),new Subset("Med", (1,0),(2,1),(3,1),(4,0)),new Subset("High",(3,0),(4,1)))},
+        { "CraneSpeedX", new ParameterRange(new Subset("neg",(-3,1),(-0.1f,1),(0,0)),new Subset("Z",(-0.1f,0),(0,1),(0.1f,0)),new Subset("pos",(0,0),(0.1f,1),(3,1)))},
+        { "CraneSpeedZ", new ParameterRange(new Subset("neg",(-3,1),(-0.1f,1),(0,0)),new Subset("Z",(-0.1f,0),(0,1),(0.1f,0)),new Subset("pos",(0,0),(0.1f,1),(3,1)))}
     };
     public static Production[] productions = new Production[] 
     { 
-    
+        new Production(("CraneSpeedX","neg"),("CargoDistanceX","Lpos")),
+        new Production(("CraneSpeedX","neg"),("CargoDistanceX","Spos")),
+        new Production(("CraneSpeedX","Z"),("CargoDistanceX","Sneg")),
+        new Production(("CraneSpeedX","Z"),("CargoDistanceX","Spos")),
+        new Production(("CraneSpeedX","pos"),("CargoDistanceX","Sneg")),
+        new Production(("CraneSpeedX","pos"),("CargoDistanceX","Lneg")),
+
+        new Production(("CraneSpeedZ","neg"),("CargoDistanceZ","Lpos")),
+        new Production(("CraneSpeedZ","neg"),("CargoDistanceZ","Spos")),
+        new Production(("CraneSpeedZ","Z"),("CargoDistanceZ","Sneg")),
+        new Production(("CraneSpeedZ","Z"),("CargoDistanceZ","Spos")),
+        new Production(("CraneSpeedZ","pos"),("CargoDistanceZ","Sneg")),
+        new Production(("CraneSpeedZ","pos"),("CargoDistanceZ","Lneg")),
+
+        new Production(("DescentSpeed","Z"),("CargoDistanceX","Lpos")),
+        new Production(("DescentSpeed","Z"),("CargoDistanceX","Lneg")),
+        new Production(("DescentSpeed","High"),("CargoDistanceX","Sneg"),("CargoDistanceZ","Sneg"),("CargoDistanceY","L")),
+        new Production(("DescentSpeed","High"),("CargoDistanceX","Spos"),("CargoDistanceZ","Sneg"),("CargoDistanceY","L")),
+        new Production(("DescentSpeed","High"),("CargoDistanceX","Sneg"),("CargoDistanceZ","Spos"),("CargoDistanceY","L")),
+        new Production(("DescentSpeed","High"),("CargoDistanceX","Spos"),("CargoDistanceZ","Spos"),("CargoDistanceY","L")),
+        new Production(("DescentSpeed","Med"),("CargoDistanceX","Sneg"),("CargoDistanceZ","Sneg"),("CargoDistanceY","M")),
+        new Production(("DescentSpeed","Med"),("CargoDistanceX","Spos"),("CargoDistanceZ","Sneg"),("CargoDistanceY","M")),
+        new Production(("DescentSpeed","Med"),("CargoDistanceX","Sneg"),("CargoDistanceZ","Spos"),("CargoDistanceY","M")),
+        new Production(("DescentSpeed","Med"),("CargoDistanceX","Spos"),("CargoDistanceZ","Spos"),("CargoDistanceY","M")),
+        new Production(("DescentSpeed","Low"),("CargoDistanceX","Sneg"),("CargoDistanceZ","Sneg"),("CargoDistanceY","S")),
+        new Production(("DescentSpeed","Low"),("CargoDistanceX","Spos"),("CargoDistanceZ","Sneg"),("CargoDistanceY","S")),
+        new Production(("DescentSpeed","Low"),("CargoDistanceX","Sneg"),("CargoDistanceZ","Spos"),("CargoDistanceY","S")),
+        new Production(("DescentSpeed","Low"),("CargoDistanceX","Spos"),("CargoDistanceZ","Spos"),("CargoDistanceY","S")),
     };
     public static Dictionary<string,float> Run(Dictionary<string,float> parameters)
     {
-        Debug.Log("Ran");
         Dictionary<string, Dictionary<string, float>> paramTable = new Dictionary<string, Dictionary<string, float>>(); 
         foreach (KeyValuePair<string,float> kvp in parameters)
         {
@@ -33,6 +59,11 @@ public static class ExpertSystem
                 paramTable[kvp.Key] = ParamRanges[kvp.Key].Fixation(kvp.Value);
             else
                 Debug.LogError("No range for parameter" + kvp.Key);
+        }
+
+        //foreach (var a in paramTable)
+        {
+            //Debug.Log(a.Key + ": " + parameters[a.Key] + " " + a.Value.Select(x=>x.Value.ToString()).Aggregate((x,y)=>x+","+y));
         }
 
         Dictionary<string, Dictionary<string, float>> resTable = new Dictionary<string, Dictionary<string, float>>();
@@ -63,9 +94,11 @@ public static class ExpertSystem
                     (a,b) = Subset.Defuzzy(Subset.Activate(ss.LinePoints, result.Value[ss.Name]));
                     num += a;
                     denum += b;
+                    //Debug.Log(num);
+                    //Debug.Log(denum);
                 }
             }
-            res.Add(result.Key, num/denum);
+            res.Add(result.Key, denum!=0?num/denum:0);
         }
         return res;
     }
@@ -78,6 +111,12 @@ public struct Production
     /// </summary>
     public (string, string)[] messages;
     public (string, string) result;
+
+    public Production((string,string) result, params (string, string)[] messages)
+    {
+        this.result = result;
+        this.messages = messages;
+    }
 }
 
 public struct ParameterRange
@@ -184,10 +223,12 @@ public struct Subset
         {
             float minval = math.min(lim, math.min(LinePoints.Values[i + 1], LinePoints.Values[i]));
             float maxval = math.max(lim, math.max(LinePoints.Values[i + 1], LinePoints.Values[i]));
-            newPoints.Add(LinePoints.Keys[i], math.min(LinePoints.Values[i], lim));
+            if (!newPoints.ContainsKey(LinePoints.Keys[i]))
+                newPoints.Add(LinePoints.Keys[i], math.min(LinePoints.Values[i], lim));
             if (math.min(LinePoints.Values[i + 1], LinePoints.Values[i]) < lim && math.max(LinePoints.Values[i + 1], LinePoints.Values[i]) > lim)
             {
-                newPoints.Add((LinePoints.Keys[i + 1] - LinePoints.Keys[i]) / (LinePoints.Values[i + 1] - LinePoints.Values[i]) * (lim - LinePoints.Values[i]), lim);
+                if (!newPoints.ContainsKey((LinePoints.Keys[i + 1] - LinePoints.Keys[i]) / (LinePoints.Values[i + 1] - LinePoints.Values[i]) * (lim - LinePoints.Values[i])))
+                    newPoints.Add((LinePoints.Keys[i + 1] - LinePoints.Keys[i]) / (LinePoints.Values[i + 1] - LinePoints.Values[i]) * (lim - LinePoints.Values[i]), lim);
             }
         }
         //Clean up
@@ -199,7 +240,9 @@ public struct Subset
             else
                 ind++;
         }
-        newPoints.Add(LinePoints.Keys.Last(), math.min(LinePoints.Values.Last(), lim));
+        //Debug.Log(newPoints.Select(p => "(" + p.Key + ";" + p.Value + ")").Aggregate((x,y)=>x+ " " + y));
+        if (!newPoints.ContainsKey(LinePoints.Keys.Last()))
+            newPoints.Add(LinePoints.Keys.Last(), math.min(LinePoints.Values.Last(), lim));
         return newPoints;
     }
 }

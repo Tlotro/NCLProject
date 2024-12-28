@@ -802,7 +802,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 20
+  m_MaxValue: 2
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -1949,7 +1949,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 20
+  m_MaxValue: 2
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -4084,7 +4084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85dac5ccc2c3e7545986ec1d1554c499, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnableExpertSystem: 0
+  EnableExpertSystem: 1
   ship: {fileID: 480659346}
   ContainerPrefab: {fileID: 3026268766116726824, guid: a0067df47919ba64fa1e1ed2f108ab07,
     type: 3}
@@ -4104,7 +4104,7 @@ MonoBehaviour:
   DescentSpeed: 2
   PlatformSpeed: {x: 0, y: 0}
   ContainerGoal: {x: 0, y: 0, z: 0}
-  LandingPrecision: 0.1
+  LandingPrecision: 0.3
 --- !u!1 &573433862
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Crane : MonoBehaviour
 {
@@ -33,7 +34,7 @@ public class Crane : MonoBehaviour
 
     public Vector3Int ContainerGoal;
     public float LandingPrecision;
-    public int[,] towers = new int[7,8];
+    public int[,] towers = new int[7,7];
 
     public void SetCurrentMode(int mode) { WindModeStrength = (InfluenceMode)mode; }
     public void SetCurrentStrength(float mode) { if (WindModeStrength == InfluenceMode.manual) WindStrength = mode; }
@@ -56,8 +57,19 @@ public class Crane : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (RailRb.transform.position.x > 38)
+            RailRb.transform.position = new Vector3(38, RailRb.transform.position.y, 0);
+        if (RailRb.transform.position.x < -38)
+            RailRb.transform.position = new Vector3(-38, RailRb.transform.position.y, 0);
+        if (transform.localPosition.z < -0.256)
+            transform.localPosition = new Vector3(0, transform.localPosition.y, -0.256f);
+        if (transform.localPosition.z > 0.256)
+            transform.localPosition = new Vector3(0, transform.localPosition.y, 0.256f);
+
         if (rope.connectedBody != null)
         {
+            if (ContainerRb.position.y < 0)
+                Debug.LogError("контейнер опущен ниже, чем нужно");
             WindTimerX += (Time.fixedDeltaTime / WindPeriodX) % (Mathf.PI * 2);
             WindTimerY += (Time.fixedDeltaTime / WindPeriodY) % (Mathf.PI * 2);
             WindTimerStrength += (Time.fixedDeltaTime / WindPeriodStrength) % (Mathf.PI * 2);
@@ -90,17 +102,19 @@ public class Crane : MonoBehaviour
             }
 
             ContainerRb.AddForce(WindDirection.normalized.AsXZ() * WindStrength, ForceMode.Acceleration);
-            Debug.Log((ContainerRb.position.x - ship.transform.position.x) / 6 + 3.5f + " " + ((ContainerRb.position.z - ship.transform.position.z) / 3 + 4));
+            Debug.Log((ContainerRb.position.x - ship.transform.position.x) / 6 + 3.5f - ContainerGoal.x + " " + ((ContainerRb.position.z - ship.transform.position.z) / 3 + 3.5 - ContainerGoal.z));
             if (EnableExpertSystem) {
             Dictionary<string, float> parameters = new Dictionary<string, float>
             {
-                { "CargoDistanceX", (ContainerRb.position.x-ship.transform.position.x)+49f-ContainerGoal.x*2 },
-                { "CargoDistanceY", ContainerRb.position.y - ship.transform.position.y-5.5f-ContainerGoal.y },
-                { "CargoDistanceZ", ContainerRb.position.z - ship.transform.position.z+9.5f-ContainerGoal.z }
+                { "CargoDistanceX", (ContainerRb.position.x-ship.transform.position.x)/6+ 3.5f-ContainerGoal.x },
+                { "CargoDistanceY", (ContainerRb.position.y - ship.transform.position.y)/3-0.67f-ContainerGoal.y },
+                { "CargoDistanceZ", (ContainerRb.position.z - ship.transform.position.z)/3+3.5f-ContainerGoal.z }
             };
             var res = ExpertSystem.Run(parameters);
             DescentSpeed = res["DescentSpeed"];
-            CraneRb.velocity = new Vector2(res["CraneSpeedX"], res["CraneSpeedZ"]).AsXZ();
+                RailRb.velocity = new Vector2(res["CraneSpeedX"], 0).AsXZ();
+                CraneRb.velocity = new Vector2(0, res["CraneSpeedZ"]).AsXZ();
+                //Debug.Log(DescentSpeed);
             }
             rope.maxDistance += DescentSpeed * Time.fixedDeltaTime;
         }
@@ -139,20 +153,29 @@ public class Crane : MonoBehaviour
 
     public void Land()
     {
-        Vector3 landPos = new Vector3((ContainerRb.position.x-ship.transform.position.x)/6+3.5f,(ContainerRb.position.y - ship.transform.position.y)/3-0.67f, (ContainerRb.position.z - ship.transform.position.z)/3+4);
-        Debug.Log(landPos + " " + (landPos - ContainerGoal));
+        Vector3 landPos = new Vector3((ContainerRb.position.x-ship.transform.position.x)/6+3.5f,(ContainerRb.position.y - ship.transform.position.y)/3-0.67f, (ContainerRb.position.z - ship.transform.position.z)/3+3.5f);
         if ((landPos - ContainerGoal).magnitude > LandingPrecision)
+        {
             Debug.LogWarning("Container collision or improper location!");
-        DetachContainer();
+            Debug.Log(landPos + " " + (landPos - ContainerGoal));
+            rope.connectedBody = null;
+            rope.maxDistance = 0;
+            ContainerRb.transform.parent = ship.transform;
+            Destroy(ContainerRb.gameObject);
+            ContainerRb = null;
+        }
+        else
+        {
+            DetachContainer();
+            towers[Mathf.RoundToInt(landPos.x), Mathf.RoundToInt(landPos.z)]++;
+        }
         RerollGoal();
-        Debug.Log(Mathf.RoundToInt(landPos.x) + " " + Mathf.RoundToInt(landPos.z));
-        towers[Mathf.RoundToInt(landPos.x), Mathf.RoundToInt(landPos.z)]++;
     }   
     
     public void RerollGoal()
     {
         int x = Random.Range(0, 7);
-        int z = Random.Range(0, 8);
+        int z = Random.Range(0, 7);
         Debug.Log(x + " " + z);
         ContainerGoal = new Vector3Int(x, towers[x,z] ,z);
     }
