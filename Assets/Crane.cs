@@ -12,6 +12,7 @@ public class Crane : MonoBehaviour
     public Rigidbody ContainerRb;
     public SpringJoint rope;
     public Rigidbody CraneRb;
+    public Rigidbody RailRb;
 
     public InfluenceMode WindModeDirectionX;
     public float WindPeriodX;
@@ -32,7 +33,7 @@ public class Crane : MonoBehaviour
 
     public Vector3Int ContainerGoal;
     public float LandingPrecision;
-    public int[,] towers = new int[50,20];
+    public int[,] towers = new int[7,8];
 
     // Start is called before the first frame update
     void Start()
@@ -82,7 +83,7 @@ public class Crane : MonoBehaviour
             }
 
             ContainerRb.AddForce(WindDirection.normalized.AsXZ() * WindStrength, ForceMode.Acceleration);
-            Debug.Log((ContainerRb.position.x - ship.transform.position.x) + 49f - ContainerGoal.x * 2 + " " + (ContainerRb.position.z - ship.transform.position.z + 9.5f - ContainerGoal.z));
+            Debug.Log((ContainerRb.position.x - ship.transform.position.x) / 6 + 3.5f + " " + ((ContainerRb.position.z - ship.transform.position.z) / 3 + 4));
             if (EnableExpertSystem) {
             Dictionary<string, float> parameters = new Dictionary<string, float>
             {
@@ -98,11 +99,14 @@ public class Crane : MonoBehaviour
         }
         else
         {
-            CraneRb.velocity = Vector3.ClampMagnitude(-new Vector3(transform.position.x,0,transform.position.z),5);
+            RailRb.velocity = new Vector3(-Mathf.Clamp(RailRb.position.x, -5, 5),0,0);
+            CraneRb.velocity = new Vector3(0,0,-Mathf.Clamp(transform.position.z, -5, 5));
             if (CraneRb.velocity.magnitude < 0.1f)
             {
-                transform.position = new Vector3(0, 50, 0);
+                transform.localPosition = new Vector3(0, 1.5f, 0);
+                RailRb.position = new Vector3(0, 45.5f, 0);
                 CraneRb.velocity = Vector3.zero;
+                RailRb.velocity = Vector3.zero;
                 CreateContainer();
             }
         }
@@ -111,10 +115,10 @@ public class Crane : MonoBehaviour
     public void CreateContainer()
     {
         var container = Object.Instantiate(ContainerPrefab, transform);
-        container.transform.localPosition = new Vector3(0, -5, 0);
+        container.transform.localPosition = new Vector3(0, -1, 0);
         ContainerRb = container.GetComponent<Rigidbody>();
         rope.connectedBody = ContainerRb;
-        rope.maxDistance = 5;
+        rope.maxDistance = 7;
     }
 
     public void DetachContainer()
@@ -128,19 +132,20 @@ public class Crane : MonoBehaviour
 
     public void Land()
     {
-        Vector3 landPos = new Vector3((ContainerRb.position.x-ship.transform.position.x)/2+24.5f,ContainerRb.position.y - ship.transform.position.y-5.5f, ContainerRb.position.z - ship.transform.position.z+9.5f);
+        Vector3 landPos = new Vector3((ContainerRb.position.x-ship.transform.position.x)/6+3.5f,(ContainerRb.position.y - ship.transform.position.y)/3-0.67f, (ContainerRb.position.z - ship.transform.position.z)/3+4);
         Debug.Log(landPos + " " + (landPos - ContainerGoal));
         if ((landPos - ContainerGoal).magnitude > LandingPrecision)
             Debug.LogWarning("Container collision or improper location!");
         DetachContainer();
         RerollGoal();
-        towers[Mathf.RoundToInt(landPos.x), Mathf.RoundToInt(landPos.y)]++;
+        Debug.Log(Mathf.RoundToInt(landPos.x) + " " + Mathf.RoundToInt(landPos.z));
+        towers[Mathf.RoundToInt(landPos.x), Mathf.RoundToInt(landPos.z)]++;
     }   
     
     public void RerollGoal()
     {
-        int x = Random.Range(0, 50);
-        int z = Random.Range(0, 20);
+        int x = Random.Range(0, 7);
+        int z = Random.Range(0, 8);
         Debug.Log(x + " " + z);
         ContainerGoal = new Vector3Int(x, towers[x,z] ,z);
     }
